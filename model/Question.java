@@ -1,62 +1,61 @@
 package model;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-// This class is the blueprint for every single question in our exam.
-// Think of this like a cookie cutter for creating questions.
 public class Question {
+    private String questionText;
+    private List<String> options;
+    private int correctOptionIndex;
 
-    // ==========================
-    // 1. THE DATA (Keep it private!)
-    // ==========================
-    // We keep these private so other parts of the app can't mess them up directly.
-    private String questionText;       // The actual question string (e.g., "What is 1+1?")
-    private List<String> options;      // A list of the 4 answer choices
-    private int correctOptionIndex;    // Which number is the right answer? (0 for A, 1 for B, etc.)
-
-    // ==========================
-    // 2. THE SETUP (Constructor)
-    // ==========================
-    // This runs immediately when you type "new Question()".
-    // It forces you to give us the data right away. No empty questions allowed.
     public Question(String questionText, List<String> options, int correctOptionIndex) {
 
-        // SAFETY CHECK: Make sure they actually gave us 4 options.
-        // If they gave 3 or 5, we crash the program here so we know there's a bug.
-        if (options.size() != 4) {
-            throw new IllegalArgumentException("Bro, you need exactly 4 options. Fix it.");
+        // --- AC CHECK: Empty Text ---
+        if (questionText == null || questionText.trim().isEmpty()) {
+            throw new IllegalArgumentException("Error: Question text cannot be empty.");
         }
 
-        // SAFETY CHECK: Make sure the answer index makes sense (must be 0, 1, 2, or 3).
+        // --- AC CHECK: Exact 4 Options ---
+        if (options == null || options.size() != 4) {
+            throw new IllegalArgumentException("Error: MCQ must have exactly 4 options.");
+        }
+
+        // --- AC CHECK: Empty Option Text ---
+        for (String opt : options) {
+            if (opt == null || opt.trim().isEmpty()) {
+                throw new IllegalArgumentException("Error: Option text cannot be empty.");
+            }
+        }
+
+        // --- AC CHECK: Duplicate Options ---
+        Set<String> distinctOptions = new HashSet<>(options);
+        if (distinctOptions.size() < options.size()) {
+            throw new IllegalArgumentException("Error: Duplicate options detected. All options must be distinct.");
+        }
+
+        // --- AC CHECK: Valid Index Range (0-3) ---
         if (correctOptionIndex < 0 || correctOptionIndex >= 4) {
-            throw new IllegalArgumentException("Invalid answer index. It has to be 0-3.");
+            throw new IllegalArgumentException("Error: Correct answer index must be between 0 (A) and 3 (D).");
         }
 
-        // If we passed the checks, save the data into the object.
-        this.questionText = questionText;
+        this.questionText = questionText.trim();
         this.options = options;
         this.correctOptionIndex = correctOptionIndex;
     }
 
-    // ==========================
-    // 3. GETTERS (Read-Only Access)
-    // ==========================
-    // These let other files READ the info, but not change it.
-
-    public String getQuestionText() {
-        return questionText;
-    }
-
-    public List<String> getOptions() {
-        return options;
-    }
-
-    // ==========================
-    // 4. THE LOGIC
-    // ==========================
-    // This checks if the student's answer is right.
-    // Pass in the number they clicked (selectedIndex). Returns true if they nailed it.
+    // --- FUTURE USE: For US06 (Answering) & US11 (Grading) ---
     public boolean isCorrect(int selectedIndex) {
         return selectedIndex == correctOptionIndex;
+    }
+
+    public String getQuestionText() { return questionText; }
+    public List<String> getOptions() { return options; }
+
+    // Helper to print nicely in terminal
+    @Override
+    public String toString() {
+        return "Q: " + questionText + "\n   A) " + options.get(0) + "\n   B) " + options.get(1) +
+                "\n   C) " + options.get(2) + "\n   D) " + options.get(3);
     }
 }
