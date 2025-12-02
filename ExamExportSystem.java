@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class ExamExportSystem {
 
     // ==========================================
-    // 1. Data Model (The "Student Result")
+    // 1. Data Model (Student Result)
     // ==========================================
     static class StudentResult {
         private String studentId;
@@ -30,47 +30,46 @@ public class ExamExportSystem {
             return "F";
         }
 
-        // Getters for CSV formatting
+        // For CSV export
         public String toCSVRow() {
             return studentId + "," + name + "," + score + "," + grade;
         }
 
         @Override
         public String toString() {
-            return String.format("%-10s | %-15s | %-5.1f | %s", studentId, name, score, grade);
+            return String.format("%-10s | %-15s | %-5.1f | %s",
+                    studentId, name, score, grade);
         }
     }
 
     // ==========================================
-    // 2. Service Layer (The Export Logic)
+    // 2. Export Logic
     // ==========================================
     public static void exportDataToCSV(List<StudentResult> results, String filename) {
-        System.out.println("\n[SYSTEM] Initializing export module...");
-        
+        System.out.println("\n[SYSTEM] Exporting data...");
+
         try (FileWriter writer = new FileWriter(filename)) {
-            // 1. Write the Header Row
+
             writer.write("Student ID,Name,Score,Grade\n");
 
-            // 2. Write Data Rows
             for (StudentResult result : results) {
                 writer.write(result.toCSVRow() + "\n");
             }
 
-            System.out.println("[SUCCESS] Data successfully exported to: " + filename);
-            System.out.println("[INFO] You can now open this file in Excel or Notepad.");
+            System.out.println("[SUCCESS] Exported to file: " + filename);
 
         } catch (IOException e) {
-            System.out.println("[ERROR] Failed to write file: " + e.getMessage());
+            System.out.println("[ERROR] Could not write to file: " + e.getMessage());
         }
     }
 
     // ==========================================
-    // 3. Main Application (CLI & Test Data)
+    // 3. Main Program
     // ==========================================
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        
-        // --- Setup Mock Data ---
+
+        // Mock Data
         List<StudentResult> database = new ArrayList<>();
         database.add(new StudentResult("S001", "Alice Tan", 85.5));
         database.add(new StudentResult("S002", "Bob Lee", 62.0));
@@ -88,27 +87,30 @@ public class ExamExportSystem {
             System.out.println("Exam: " + examName);
             System.out.println("Total Students: " + database.size());
             System.out.println("------------------------------------------");
-            System.out.println("1. View Grade List (Console)");
-            System.out.println("2. Export Grades to CSV File");
+            System.out.println("1. View Grade List");
+            System.out.println("2. Export Grades to CSV");
             System.out.println("3. Exit");
             System.out.print("> Select an option: ");
 
-            String input = scanner.nextLine();
+            String input = scanner.nextLine().trim();
 
             switch (input) {
                 case "1":
-                    System.out.println("\n--- Current Grade List ---");
-                    System.out.printf("%-10s | %-15s | %-5s | %s\n", "ID", "Name", "Score", "G");
+                    System.out.println("\n--- Grade List ---");
+                    System.out.printf("%-10s | %-15s | %-5s | %s\n",
+                            "ID", "Name", "Score", "G");
                     System.out.println("------------------------------------------");
+
                     for (StudentResult r : database) {
                         System.out.println(r);
                     }
+
                     pressEnterToContinue(scanner);
                     break;
 
                 case "2":
                     String filename = examName + "_Grades.csv";
-                    System.out.println("\n[CONFIRM] Exporting results to '" + filename + "'...");
+                    System.out.println("\n[INFO] Exporting to: " + filename);
                     exportDataToCSV(database, filename);
                     pressEnterToContinue(scanner);
                     break;
@@ -119,9 +121,10 @@ public class ExamExportSystem {
                     break;
 
                 default:
-                    System.out.println("Invalid option.");
+                    System.out.println("[ERROR] Invalid option.");
             }
         }
+
         scanner.close();
     }
 
