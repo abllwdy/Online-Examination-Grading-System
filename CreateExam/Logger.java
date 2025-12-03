@@ -1,5 +1,6 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.io.PrintStream;
 
 /**
  * Simple logging utility for application messages
@@ -7,7 +8,12 @@ import java.time.format.DateTimeFormatter;
  */
 public class Logger {
     private static final boolean DEBUG_MODE = true;
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter TIME_FORMATTER = 
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    
+    private Logger() {
+        // Private constructor to prevent instantiation
+    }
     
     public static void info(String message) {
         log("INFO", message, System.out);
@@ -23,8 +29,8 @@ public class Logger {
         }
     }
     
-    private static void log(String level, String message, java.io.PrintStream stream) {
+    private static void log(String level, String message, PrintStream stream) {
         String timestamp = LocalDateTime.now().format(TIME_FORMATTER);
-        stream.println(String.format("[%s] %s - %s", level, timestamp, message));
+        stream.printf("[%s] %s - %s%n", level, timestamp, message);
     }
 }

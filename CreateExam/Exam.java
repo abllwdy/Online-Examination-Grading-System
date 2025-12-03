@@ -9,28 +9,33 @@ import java.util.List;
  * Contains exam details, questions, and metadata
  */
 public class Exam {
+    private static final DateTimeFormatter DATE_FORMATTER = 
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    
     private final int examId;
     private String title;
     private String instructions;
     private final LocalDateTime createdAt;
     private final List<Question> questions;
-    
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    // Constructor for new exams
+    /**
+     * Constructor for new exams
+     */
     public Exam(int examId, String title, String instructions) {
-        this.examId = examId;
-        this.title = title;
-        this.instructions = instructions;
-        this.createdAt = LocalDateTime.now();
-        this.questions = new ArrayList<>();
+        this(examId, title, instructions, LocalDateTime.now());
     }
     
-    // Constructor for loading existing exams (e.g., from database)
+    /**
+     * Constructor for loading existing exams (e.g., from database)
+     */
     public Exam(int examId, String title, String instructions, LocalDateTime createdAt) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty");
+        }
+        
         this.examId = examId;
-        this.title = title;
-        this.instructions = instructions;
+        this.title = title.trim();
+        this.instructions = (instructions == null) ? "" : instructions.trim();
         this.createdAt = createdAt;
         this.questions = new ArrayList<>();
     }
@@ -52,9 +57,6 @@ public class Exam {
         return createdAt;
     }
 
-    /**
-     * Returns unmodifiable list to protect internal state
-     */
     public List<Question> getQuestions() {
         return Collections.unmodifiableList(questions);
     }
@@ -76,7 +78,7 @@ public class Exam {
     }
 
     /**
-     * Controlled method to add questions
+     * Add a question to the exam
      */
     public void addQuestion(Question question) {
         if (question == null) {

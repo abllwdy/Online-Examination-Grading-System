@@ -7,12 +7,11 @@ import java.util.stream.Collectors;
  * Manages exam creation, retrieval, and validation
  */
 public class ExamService {
-    private List<Exam> examList;
-    private int nextExamId;
-    
-    // Validation constants
     private static final int MAX_TITLE_LENGTH = 200;
     private static final int MAX_INSTRUCTIONS_LENGTH = 1000;
+    
+    private final List<Exam> examList;
+    private int nextExamId;
 
     public ExamService() {
         this.examList = new ArrayList<>();
@@ -20,37 +19,28 @@ public class ExamService {
     }
 
     /**
+     * Create exam with validation
      * AC1: Create exam with valid title and instructions
      * AC2: Reject blank title
-     * @param title - Exam title
-     * @param instructions - Exam instructions
-     * @return ExamCreationResult containing success status and message
      */
     public ExamCreationResult createExam(String title, String instructions) {
         Logger.debug("Attempting to create exam with title: " + title);
         
-        // AC2: Validate title is not blank
-        if (title == null || title.trim().isEmpty()) {
-            Logger.error("Exam creation failed: Empty title");
-            return new ExamCreationResult(false, "Error: Exam title cannot be empty", null);
+        // Validate title
+        String validationError = validateTitle(title);
+        if (validationError != null) {
+            Logger.error("Exam creation failed: " + validationError);
+            return new ExamCreationResult(false, validationError, null);
         }
         
-        // Additional validation: Check title length
-        if (title.trim().length() > MAX_TITLE_LENGTH) {
-            Logger.error("Exam creation failed: Title too long");
-            return new ExamCreationResult(false, 
-                "Error: Exam title cannot exceed " + MAX_TITLE_LENGTH + " characters", null);
-        }
-        
-        // Additional validation: Check instructions length
-        if (instructions != null && instructions.trim().length() > MAX_INSTRUCTIONS_LENGTH) {
-            Logger.error("Exam creation failed: Instructions too long");
-            return new ExamCreationResult(false, 
-                "Error: Instructions cannot exceed " + MAX_INSTRUCTIONS_LENGTH + " characters", null);
+        // Validate instructions
+        validationError = validateInstructions(instructions);
+        if (validationError != null) {
+            Logger.error("Exam creation failed: " + validationError);
+            return new ExamCreationResult(false, validationError, null);
         }
         
         try {
-            // AC1: Create and save exam
             String sanitizedTitle = title.trim();
             String sanitizedInstructions = (instructions == null) ? "" : instructions.trim();
             
@@ -66,19 +56,30 @@ public class ExamService {
         }
     }
 
+    private String validateTitle(String title) {
+        if (title == null || title.trim().isEmpty()) {
+            return "Error: Exam title cannot be empty";
+        }
+        if (title.trim().length() > MAX_TITLE_LENGTH) {
+            return "Error: Exam title cannot exceed " + MAX_TITLE_LENGTH + " characters";
+        }
+        return null;
+    }
+
+    private String validateInstructions(String instructions) {
+        if (instructions != null && instructions.trim().length() > MAX_INSTRUCTIONS_LENGTH) {
+            return "Error: Instructions cannot exceed " + MAX_INSTRUCTIONS_LENGTH + " characters";
+        }
+        return null;
+    }
+
     /**
      * AC3: Retrieve all exams
-     * @return List of all exams (copy to prevent external modification)
      */
     public List<Exam> getAllExams() {
         return new ArrayList<>(examList);
     }
 
-    /**
-     * Get exam by ID
-     * @param examId - ID of the exam
-     * @return Exam object or null if not found
-     */
     public Exam getExamById(int examId) {
         return examList.stream()
                 .filter(exam -> exam.getExamId() == examId)
@@ -86,19 +87,10 @@ public class ExamService {
                 .orElse(null);
     }
 
-    /**
-     * Get total number of exams
-     * @return Count of exams
-     */
     public int getExamCount() {
         return examList.size();
     }
     
-    /**
-     * Search exams by title
-     * @param keyword - Search keyword
-     * @return List of matching exams
-     */
     public List<Exam> searchExamsByTitle(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return getAllExams();
@@ -110,11 +102,6 @@ public class ExamService {
                 .collect(Collectors.toList());
     }
     
-    /**
-     * Delete exam by ID
-     * @param examId - ID of exam to delete
-     * @return true if deleted, false if not found
-     */
     public boolean deleteExam(int examId) {
         boolean removed = examList.removeIf(exam -> exam.getExamId() == examId);
         if (removed) {
@@ -129,9 +116,9 @@ public class ExamService {
     public void initializeNextId() {
         if (!examList.isEmpty()) {
             int maxId = examList.stream()
-                              .mapToInt(Exam::getExamId)
-                              .max()
-                              .orElse(0);
+                    .mapToInt(Exam::getExamId)
+                    .max()
+                    .orElse(0);
             nextExamId = maxId + 1;
             Logger.debug("Next exam ID initialized to: " + nextExamId);
         }

@@ -6,81 +6,82 @@ import java.util.Scanner;
  * Handles console input/output and user interactions
  */
 public class InstructorUI {
-    private ExamService examService;
-    private Scanner scanner;
+    private static final String SEPARATOR = "========================================";
+    private static final String LINE = "─────────────────────────────────────";
+    
+    private final ExamService examService;
+    private final Scanner scanner;
     
     public InstructorUI(ExamService examService) {
         this.examService = examService;
         this.scanner = new Scanner(System.in);
     }
     
-    /**
-     * Start the instructor UI loop
-     */
     public void start() {
+        printHeader();
+        
         boolean running = true;
-        
-        System.out.println("========================================");
-        System.out.println("   Online Examination & Grading System  ");
-        System.out.println("        Instructor Dashboard            ");
-        System.out.println("========================================\n");
-        
         while (running) {
             displayMenu();
             String choice = scanner.nextLine().trim();
             
-            switch (choice) {
-                case "1":
-                    handleCreateExam();
-                    break;
-                case "2":
-                    handleViewAllExams();
-                    break;
-                case "3":
-                    handleSearchExam();
-                    break;
-                case "4":
-                    handleDeleteExam();
-                    break;
-                case "5":
-                    running = false;
-                    System.out.println("\nExiting application... Goodbye!");
-                    break;
-                default:
-                    System.out.println("❌ Invalid option. Please choose 1-5.");
-            }
+            running = handleMenuChoice(choice);
             
             if (running) {
                 pressEnterToContinue();
             }
         }
         
-        scanner.close();
+        System.out.println("\nExiting application... Goodbye!");
     }
     
-    /**
-     * Display main menu options
-     */
+    private void printHeader() {
+        System.out.println(SEPARATOR);
+        System.out.println("   Online Examination & Grading System  ");
+        System.out.println("        Instructor Dashboard            ");
+        System.out.println(SEPARATOR + "\n");
+    }
+    
     private void displayMenu() {
-        System.out.println("\n========================================");
+        System.out.println("\n" + SEPARATOR);
         System.out.println("           MAIN MENU");
-        System.out.println("========================================");
+        System.out.println(SEPARATOR);
         System.out.println("1. Create New Exam");
         System.out.println("2. View All Exams");
         System.out.println("3. Search Exams");
         System.out.println("4. Delete Exam");
         System.out.println("5. Exit");
-        System.out.println("========================================");
+        System.out.println(SEPARATOR);
         System.out.print("Choose an option (1-5): ");
+    }
+    
+    private boolean handleMenuChoice(String choice) {
+        switch (choice) {
+            case "1":
+                handleCreateExam();
+                return true;
+            case "2":
+                handleViewAllExams();
+                return true;
+            case "3":
+                handleSearchExam();
+                return true;
+            case "4":
+                handleDeleteExam();
+                return true;
+            case "5":
+                return false;
+            default:
+                System.out.println("❌ Invalid option. Please choose 1-5.");
+                return true;
+        }
     }
     
     /**
      * Handle exam creation (AC1, AC2, AC3)
      */
     private void handleCreateExam() {
-        System.out.println("\n========================================");
-        System.out.println("         CREATE NEW EXAM");
-        System.out.println("========================================");
+        printSectionHeader("CREATE NEW EXAM");
         
         try {
             System.out.print("Enter exam title: ");
@@ -92,9 +93,10 @@ public class InstructorUI {
             ExamCreationResult result = examService.createExam(title, instructions);
             
             if (result.isSuccess()) {
+                Exam exam = result.getExam();
                 System.out.println("\n✅ " + result.getMessage());
-                System.out.println("📋 Exam ID: " + result.getExam().getExamId());
-                System.out.println("📝 Title: " + result.getExam().getTitle());
+                System.out.println("📋 Exam ID: " + exam.getExamId());
+                System.out.println("📝 Title: " + exam.getTitle());
                 System.out.println("📚 Total exams: " + examService.getExamCount());
             } else {
                 System.out.println("\n❌ " + result.getMessage());
@@ -110,9 +112,7 @@ public class InstructorUI {
      * Handle viewing all exams (AC3)
      */
     private void handleViewAllExams() {
-        System.out.println("\n========================================");
-        System.out.println("           ALL EXAMS");
-        System.out.println("========================================");
+        printSectionHeader("ALL EXAMS");
         
         List<Exam> exams = examService.getAllExams();
 
@@ -122,11 +122,10 @@ public class InstructorUI {
             System.out.println("Total Exams: " + exams.size() + "\n");
             
             for (int i = 0; i < exams.size(); i++) {
-                Exam exam = exams.get(i);
-                System.out.println("─────────────────────────────────────");
-                System.out.println((i + 1) + ". " + exam.toString());
+                System.out.println(LINE);
+                System.out.println((i + 1) + ". " + exams.get(i).toString());
             }
-            System.out.println("─────────────────────────────────────");
+            System.out.println(LINE);
         }
     }
     
@@ -134,9 +133,7 @@ public class InstructorUI {
      * Handle exam search by title
      */
     private void handleSearchExam() {
-        System.out.println("\n========================================");
-        System.out.println("         SEARCH EXAMS");
-        System.out.println("========================================");
+        printSectionHeader("SEARCH EXAMS");
         
         try {
             System.out.print("Enter search keyword (title): ");
@@ -150,11 +147,10 @@ public class InstructorUI {
                 System.out.println("\n✅ Found " + results.size() + " exam(s):\n");
                 
                 for (int i = 0; i < results.size(); i++) {
-                    Exam exam = results.get(i);
-                    System.out.println("─────────────────────────────────────");
-                    System.out.println((i + 1) + ". " + exam.toString());
+                    System.out.println(LINE);
+                    System.out.println((i + 1) + ". " + results.get(i).toString());
                 }
-                System.out.println("─────────────────────────────────────");
+                System.out.println(LINE);
             }
             
         } catch (Exception e) {
@@ -167,11 +163,8 @@ public class InstructorUI {
      * Handle exam deletion
      */
     private void handleDeleteExam() {
-        System.out.println("\n========================================");
-        System.out.println("         DELETE EXAM");
-        System.out.println("========================================");
+        printSectionHeader("DELETE EXAM");
         
-        // First show all exams
         List<Exam> exams = examService.getAllExams();
         
         if (exams.isEmpty()) {
@@ -196,17 +189,13 @@ public class InstructorUI {
             
             int examId = Integer.parseInt(input);
             
-            // Confirm deletion
             Exam examToDelete = examService.getExamById(examId);
             if (examToDelete == null) {
                 System.out.println("\n❌ Error: Exam ID " + examId + " not found.");
                 return;
             }
             
-            System.out.print("\n⚠️  Are you sure you want to delete \"" + examToDelete.getTitle() + "\"? (yes/no): ");
-            String confirmation = scanner.nextLine().trim().toLowerCase();
-            
-            if (confirmation.equals("yes") || confirmation.equals("y")) {
+            if (confirmDeletion(examToDelete.getTitle())) {
                 boolean deleted = examService.deleteExam(examId);
                 if (deleted) {
                     System.out.println("\n✅ Exam deleted successfully.");
@@ -224,6 +213,24 @@ public class InstructorUI {
             System.out.println("\n❌ Error: An unexpected error occurred.");
             Logger.error("Exception in handleDeleteExam: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Confirm deletion with user
+     */
+    private boolean confirmDeletion(String examTitle) {
+        System.out.print("\n⚠️  Are you sure you want to delete \"" + examTitle + "\"? (yes/no): ");
+        String confirmation = scanner.nextLine().trim().toLowerCase();
+        return confirmation.equals("yes") || confirmation.equals("y");
+    }
+    
+    /**
+     * Print section header
+     */
+    private void printSectionHeader(String title) {
+        System.out.println("\n" + SEPARATOR);
+        System.out.println("         " + title);
+        System.out.println(SEPARATOR);
     }
     
     /**

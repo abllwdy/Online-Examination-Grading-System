@@ -4,17 +4,13 @@
  */
 public class InstructorApp {
     public static void main(String[] args) {
-        // Initialize service layer
         ExamService examService = new ExamService();
-        
-        // Initialize UI layer
         InstructorUI ui = new InstructorUI(examService);
         
-        // Start the application
         try {
             ui.start();
         } catch (Exception e) {
-            System.err.println("Fatal error: Application crashed.");
+            System.err.println("\n❌ Fatal error: Application crashed.");
             Logger.error("Application error: " + e.getMessage());
             e.printStackTrace();
         } finally {
