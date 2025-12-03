@@ -1,3 +1,7 @@
+/**
+ * Result object for exam creation operations
+ * Provides success status, message, and created exam object
+ */
 public class ExamCreationResult {
     private boolean success;
     private String message;
