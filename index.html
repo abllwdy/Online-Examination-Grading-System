@@ -3,111 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agile Exam System</title>
+    <title>Exam Scheduler Prototype</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; background-color: #f4f4f4; }
-        .card { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        h2 { border-bottom: 2px solid #007bff; padding-bottom: 10px; color: #333; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input { width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 2rem auto; background: #f4f4f9; }
         
-        /* Grey out read-only fields */
-        input[readonly] {
-            background-color: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-            border-color: #ced4da;
-        }
-
-        button { background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #218838; }
+        /* Containers */
+        .panel { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; }
+        
+        /* Instructor Styles */
+        .instructor-panel { border-left: 5px solid #2c3e50; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="datetime-local"] { padding: 8px; width: 100%; box-sizing: border-box; }
+        button#saveSchedule { background: #2c3e50; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+        button#saveSchedule:hover { background: #1a252f; }
         
         /* Feedback Messages */
-        .hidden { display: none; }
-        .success-msg { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-top: 10px; }
-        .error-msg { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .message { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
+        .error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+        /* Student Styles */
+        .student-panel { border-left: 5px solid #3498db; position: relative; }
+        .status-badge { display: inline-block; padding: 5px 10px; border-radius: 15px; font-size: 0.85em; margin-bottom: 10px; font-weight: bold;}
+        
+        .status-waiting { background: #fff3e0; color: #e65100; } /* Yellow/Orange */
+        .status-open { background: #e8f5e9; color: #2e7d32; }   /* Green */
+        .status-closed { background: #ffebee; color: #c62828; }  /* Red */
+
+        /* The Exam Button */
+        #startExamBtn { padding: 15px 30px; font-size: 1.1em; cursor: pointer; background: #3498db; color: white; border: none; border-radius: 4px; transition: all 0.3s; }
+        #startExamBtn:disabled { background: #bdc3c7; cursor: not-allowed; opacity: 0.7; }
+
+        /* The Actual Exam Content (Hidden initially) */
+        #examContent { display: none; margin-top: 20px; padding: 20px; border: 1px dashed #ccc; background: #fafafa; }
     </style>
 </head>
 <body>
-    <h1>Exam System Prototype</h1>
 
-    <div class="card">
-        <h2>Update Profile</h2>
-        
-        <label>Student ID:</label>
-        <input type="text" value="23WMR05123" readonly>
-
-        <label>Full Name:</label>
-        <input type="text" value="John Doe" readonly>
-        
-        <label>Email Address:</label>
-        <input type="email" value="john@student.tarc.edu.my" readonly>
-
-        <label>Phone Number:</label>
-        <input type="tel" id="phoneNumber" value="012-9876543"> 
-        
-        <label>New Password:</label>
-        <input type="password" id="password" placeholder="Leave blank to keep current password">
-        
-        <button onclick="saveProfile()">Save Changes</button>
-        
-        <div id="msg-box" class="hidden"></div>
+    <div class="panel instructor-panel">
+        <h2>👨‍🏫 Instructor: Schedule Exam</h2>
+        <div class="form-group">
+            <label>Start Time:</label>
+            <input type="datetime-local" id="startTime">
+        </div>
+        <div class="form-group">
+            <label>End Time:</label>
+            <input type="datetime-local" id="endTime">
+        </div>
+        <button id="saveSchedule">Save Schedule</button>
+        <div id="instructorMsg" class="message"></div>
     </div>
 
-    <script>
-        function saveProfile() {
-            // 1. Get values
-            const phone = document.getElementById('phoneNumber').value.trim();
-            const pass = document.getElementById('password').value;
-            const msgBox = document.getElementById('msg-box');
+    <div class="panel student-panel">
+        <h2>👨‍🎓 Student: Exam Portal</h2>
+        
+        <div id="statusBadge" class="status-badge status-waiting">Status: No Schedule Set</div>
+        <p id="studentMsg">Please wait for the instructor to schedule the exam.</p>
+        
+        <button id="startExamBtn" disabled>Start Exam</button>
 
-            // Reset Message Box
-            msgBox.classList.add('hidden');
-            msgBox.className = 'hidden'; // Remove error/success classes
+        <div id="examContent">
+            <h3>📝 Final Exam</h3>
+            <p>Question 1: What is the complexity of Binary Search?</p>
+            <textarea rows="3" style="width:100%"></textarea>
+        </div>
+    </div>
 
-            // --- VALIDATION LOGIC ---
-
-            // Check 1: Is Phone Empty?
-            if (!phone) {
-                showError("Error: Phone number cannot be empty.");
-                return;
-            }
-
-            // Check 2: Phone Format (Digits and dashes only)
-            const phonePattern = /^[0-9-]+$/;
-            if (!phonePattern.test(phone)) {
-                showError("Error: Phone contains invalid characters. Use only digits and dashes.");
-                return;
-            }
-
-            // Check 3: Password Length (Only if they typed a password)
-            if (pass.length > 0 && pass.length < 6) {
-                showError("Error: New password must be at least 6 characters long.");
-                return;
-            }
-
-            // --- SUCCESS ---
-            showSuccess("Success: Profile details updated!");
-        }
-
-        // Helper function to show Red Error Box
-        function showError(message) {
-            const msgBox = document.getElementById('msg-box');
-            msgBox.innerText = message;
-            msgBox.className = 'error-msg'; // Apply red style
-            msgBox.classList.remove('hidden');
-        }
-
-        // Helper function to show Green Success Box
-        function showSuccess(message) {
-            const msgBox = document.getElementById('msg-box');
-            msgBox.innerText = message;
-            msgBox.className = 'success-msg'; // Apply green style
-            msgBox.classList.remove('hidden');
-            
-            // Auto-hide after 3 seconds
-            setTimeout(() => msgBox.classList.add('hidden'), 3000);
-        }
-    </script>
 </body>
 </html>
