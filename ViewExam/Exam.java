@@ -1,40 +1,70 @@
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Main {
-    public static void main(String[] args) {
-        System.out.println("╔════════════════════════════════════════╗");
-        System.out.println("║   OEGS - US03 Demo: View Upcoming Exams║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+public class Exam {
+    private static int examCounter = 0;
+    private int examId;
+    private String title;
+    private String instructions;
+    private LocalDateTime scheduledDateTime;
+    private int durationMinutes;
+    private LocalDateTime createdAt;
+    private List<String> enrolledStudentIds; // Student IDs enrolled in this exam
+    private List<Question> questions;
 
-        // Create sample exams - ALL with FUTURE dates
-        Exam exam1 = ExamService.createExam(
-            "Midterm Exam - Java Programming",
-            "Bring your laptop. Open book exam.",
-            LocalDateTime.now().plusDays(3),
-            120
-        );
+    // Constructor
+    public Exam(String title, String instructions, LocalDateTime scheduledDateTime, int durationMinutes) {
+        this.examId = ++examCounter;
+        this.title = title;
+        this.instructions = instructions;
+        this.scheduledDateTime = scheduledDateTime;
+        this.durationMinutes = durationMinutes;
+        this.createdAt = LocalDateTime.now();
+        this.enrolledStudentIds = new ArrayList<>();
+        this.questions = new ArrayList<>();
+    }
 
-        Exam exam2 = ExamService.createExam(
-            "Final Exam - Data Structures",
-            "Closed book. Calculator allowed.",
-            LocalDateTime.now().plusDays(7),
-            180
-        );
+    // Getters
+    public int getExamId() { return examId; }
+    public String getTitle() { return title; }
+    public String getInstructions() { return instructions; }
+    public LocalDateTime getScheduledDateTime() { return scheduledDateTime; }
+    public int getDurationMinutes() { return durationMinutes; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public List<String> getEnrolledStudentIds() { return enrolledStudentIds; }
+    public List<Question> getQuestions() { return questions; }
 
-        Exam exam3 = ExamService.createExam(
-            "Quiz 1 - Algorithms",
-            "Short quiz covering Week 1-3",
-            LocalDateTime.now().plusDays(1),
-            30
-        );
+    // Setters
+    public void setTitle(String title) { this.title = title; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+    public void setScheduledDateTime(LocalDateTime scheduledDateTime) { 
+        this.scheduledDateTime = scheduledDateTime; 
+    }
+    public void setDurationMinutes(int durationMinutes) { 
+        this.durationMinutes = durationMinutes; 
+    }
 
-        // Enroll student "S001" in the three upcoming exams
-        ExamService.enrollStudentInExam(exam1.getExamId(), "S001");
-        ExamService.enrollStudentInExam(exam2.getExamId(), "S001");
-        ExamService.enrollStudentInExam(exam3.getExamId(), "S001");
+    // Enroll student
+    public void enrollStudent(String studentId) {
+        if (!enrolledStudentIds.contains(studentId)) {
+            enrolledStudentIds.add(studentId);
+        }
+    }
 
-        // Simulate student S001 login and view upcoming exams
-        StudentUI.setCurrentStudent("S001");
-        StudentUI.viewUpcomingExams();
+    // Check if exam is upcoming
+    public boolean isUpcoming() {
+        return scheduledDateTime.isAfter(LocalDateTime.now());
+    }
+
+    // Check if student is enrolled
+    public boolean isStudentEnrolled(String studentId) {
+        return enrolledStudentIds.contains(studentId);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Exam #%d: %s | Scheduled: %s | Duration: %d mins", 
+            examId, title, scheduledDateTime, durationMinutes);
     }
 }
