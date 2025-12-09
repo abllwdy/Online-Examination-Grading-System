@@ -73,3 +73,137 @@
 
 </body>
 </html>
+<script>
+    // --- STATE MANAGEMENT ---
+    let examConfig = {
+        scheduled: false,
+        start: null,
+        end: null
+    };
+
+    // --- INSTRUCTOR LOGIC ---
+    const saveBtn = document.getElementById('saveSchedule');
+    const instructorMsg = document.getElementById('instructorMsg');
+
+    saveBtn.addEventListener('click', () => {
+        const startInput = document.getElementById('startTime').value;
+        const endInput = document.getElementById('endTime').value;
+
+        // Basic Validation: Check if empty
+        if (!startInput || !endInput) {
+            showMessage(instructorMsg, 'Please select both start and end times.', 'error');
+            return;
+        }
+
+        const startDate = new Date(startInput);
+        const endDate = new Date(endInput);
+
+        // REQUIREMENT: End time must be later than start time
+        // REQUIREMENT: Prevent saving if equal
+        if (endDate <= startDate) {
+            showMessage(instructorMsg, 'Error: End time must be later than start time.', 'error');
+            return;
+        }
+
+        // Save successfully
+        examConfig.scheduled = true;
+        examConfig.start = startDate;
+        examConfig.end = endDate;
+        showMessage(instructorMsg, 'Schedule saved successfully!', 'success');
+        
+        // Trigger an immediate check so the student view updates instantly
+        checkExamStatus();
+    });
+
+    function showMessage(element, text, type) {
+        element.style.display = 'block';
+        element.textContent = text;
+        element.className = `message ${type}`;
+    }
+
+    // --- STUDENT LOGIC (AUTOMATED TIMER) ---
+    const startBtn = document.getElementById('startExamBtn');
+    const studentMsg = document.getElementById('studentMsg');
+    const statusBadge = document.getElementById('statusBadge');
+    const examContent = document.getElementById('examContent');
+
+    // Button Click Handler
+    startBtn.addEventListener('click', () => {
+        // Double check time on click (security)
+        const now = new Date();
+        if (now >= examConfig.start && now < examConfig.end) {
+            examContent.style.display = 'block';
+            startBtn.style.display = 'none'; // Hide button once started
+            studentMsg.textContent = "You are taking the exam.";
+        } else {
+             // Handle edge case where time expired while user hovered
+             alert("Cannot start: Exam is closed.");
+             checkExamStatus();
+        }
+    });
+
+    // REQUIREMENT: System must allow start without manual page refresh
+    // We use setInterval to simulate the server clock checking every 1 second
+    setInterval(checkExamStatus, 1000);
+
+    function checkExamStatus() {
+        if (!examConfig.scheduled) return;
+
+        const now = new Date();
+        const { start, end } = examConfig;
+
+        // SCENARIO 1: Before Start Time
+        if (now < start) {
+            updateStudentUI(
+                "Waiting for Start", 
+                "status-waiting", 
+                "The exam is not yet available.", 
+                true // disabled
+            );
+            closeAccess(); 
+        } 
+        // SCENARIO 2: Exam Window Open
+        else if (now >= start && now < end) {
+            // Only update message if user hasn't already started
+            if (examContent.style.display === 'none') {
+                updateStudentUI(
+                    "Exam Open", 
+                    "status-open", 
+                    "The exam is live. Good luck!", 
+                    false // enabled
+                );
+            }
+        } 
+        // SCENARIO 3: After End Time
+        else if (now >= end) {
+            updateStudentUI(
+                "Exam Closed", 
+                "status-closed", 
+                "The exam is closed. Access is blocked.", 
+                true // disabled
+            );
+            closeAccess(); // Kicks user out if they are viewing content
+        }
+    }
+
+    function updateStudentUI(badgeText, badgeClass, msgText, btnDisabled) {
+        statusBadge.textContent = badgeText;
+        statusBadge.className = `status-badge ${badgeClass}`;
+        
+        // If the user is already taking the exam, we don't overwrite the message
+        if(examContent.style.display === 'none') {
+             studentMsg.textContent = msgText;
+             startBtn.disabled = btnDisabled;
+        }
+    }
+
+    // REQUIREMENT: Fully block access after end time
+    // REQUIREMENT: If student is inside, prevent re-entry/block view
+    function closeAccess() {
+        if (examContent.style.display === 'block') {
+            examContent.style.display = 'none';
+            studentMsg.textContent = "Time is up! The exam has closed.";
+            alert("The exam time has ended. Your access is now blocked.");
+        }
+    }
+</script>
