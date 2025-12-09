@@ -1,19 +1,18 @@
 package model;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-public class StudentSession {
-    public static final String STATUS_READY = "READY";
-    public static final String STATUS_IN_PROGRESS = "IN_PROGRESS";
-    public static final String STATUS_SUBMITTED = "SUBMITTED";
+public class StudentSession implements SessionManager {
 
-    // forceMemoryError flag is REMOVED
+    // Set exam duration to 1 minute for easy testing
+    private final Duration examDuration = Duration.ofMinutes(1);
 
     private Instant startTime;
     private String status;
-    private Map<Integer, String> answers; // Stores {QuestionIndex : "A"}
+    private Map<Integer, String> answers;
 
     public StudentSession() {
         this.status = STATUS_READY;
@@ -21,6 +20,7 @@ public class StudentSession {
         this.startTime = null;
     }
 
+    @Override
     public void start() {
         if (this.status.equals(STATUS_READY)) {
             this.status = STATUS_IN_PROGRESS;
@@ -30,18 +30,38 @@ public class StudentSession {
         }
     }
 
-    // --- US06 LOGIC: SAVE ANSWER ---
+    @Override
     public void saveAnswer(int questionIndex, String answer) {
-        // The forceMemoryError check is REMOVED
         answers.put(questionIndex, answer);
     }
 
-    // --- GETTERS ---
+    @Override
+    public Duration getTimeRemaining() {
+        if (!status.equals(STATUS_IN_PROGRESS) || startTime == null) {
+            return examDuration;
+        }
+        Duration elapsed = Duration.between(startTime, Instant.now());
+        Duration remaining = examDuration.minus(elapsed);
+        return remaining.isNegative() ? Duration.ZERO : remaining;
+    }
+
+    @Override
+    public void submit() {
+        if (!status.equals(STATUS_IN_PROGRESS)) {
+            throw new IllegalStateException("Exam is not in progress.");
+        }
+        this.status = STATUS_SUBMITTED;
+    }
+
+    @Override
     public String getAnswer(int questionIndex) {
         return answers.get(questionIndex);
     }
 
+    @Override
     public String getStatus() { return status; }
+    @Override
     public Instant getStartTime() { return startTime; }
+    @Override
     public Map<Integer, String> getAnswersMap() { return answers; }
 }
