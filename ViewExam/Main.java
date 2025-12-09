@@ -6,7 +6,7 @@ public class Main {
         System.out.println("║   OEGS - US03 Demo: View Upcoming Exams║");
         System.out.println("╚════════════════════════════════════════╝\n");
 
-        // Create sample exams
+        // Create sample exams - ALL with FUTURE dates
         Exam exam1 = ExamService.createExam(
             "Midterm Exam - Java Programming",
             "Bring your laptop. Open book exam.",
@@ -28,15 +28,10 @@ public class Main {
             30
         );
 
-        // Create past exam (should NOT appear in upcoming)
-        Exam pastExam = ExamService.createExam(
-            "Past Quiz",
-            "This is in the past",
-            LocalDateTime.now().minusDays(2),
-            30
-        );
+        // REMOVED: Past exam creation - it was causing the error
+        // Past exams should not be created through this method anyway
 
-        // Enroll student "S001" in exams 1, 2, and 3 (not past exam)
+        // Enroll student "S001" in the three upcoming exams
         ExamService.enrollStudentInExam(exam1.getExamId(), "S001");
         ExamService.enrollStudentInExam(exam2.getExamId(), "S001");
         ExamService.enrollStudentInExam(exam3.getExamId(), "S001");
