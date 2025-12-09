@@ -28,9 +28,6 @@ public class Main {
             30
         );
 
-        // REMOVED: Past exam creation - it was causing the error
-        // Past exams should not be created through this method anyway
-
         // Enroll student "S001" in the three upcoming exams
         ExamService.enrollStudentInExam(exam1.getExamId(), "S001");
         ExamService.enrollStudentInExam(exam2.getExamId(), "S001");
