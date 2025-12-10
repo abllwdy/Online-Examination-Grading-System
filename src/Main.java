@@ -2,6 +2,7 @@
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+<<<<<<< HEAD
         INotificationService notifications = new NotificationService();
         IReviewWorkflow workflow = new ReviewWorkflow(notifications);
         
@@ -26,5 +27,15 @@ public class Main {
         // Uncomment below to use console interface instead:
         // ConsoleApp app = new ConsoleApp(workflow);
         // app.run();
+=======
+        String sp = System.getProperty("port");
+        String ep = System.getenv("PORT");
+        int port = 8080;
+        try {
+            if (sp != null) port = Integer.parseInt(sp);
+            else if (ep != null) port = Integer.parseInt(ep);
+        } catch (NumberFormatException ignored) {}
+        WebServer.start(port);
+>>>>>>> b26e9032114b8da7b014a1a0e70958f27ca08680
     }
 }
