@@ -11,21 +11,14 @@
         label { display: block; margin: 10px 0 5px; font-weight: bold; }
         input { width: 95%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; }
         
-        /* Grey out read-only fields */
-        input[readonly] {
-            background-color: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-            border-color: #ced4da;
-        }
+        input[readonly] { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; }
 
         button { background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px; }
         button:hover { background-color: #218838; }
         
-        /* Feedback Messages */
         .hidden { display: none; }
-        .success-msg { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-top: 10px; }
-        .error-msg { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; }
+        .success-msg { background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-top: 10px; border: 1px solid #c3e6cb; }
+        .error-msg { background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-top: 10px; border: 1px solid #f5c6cb; }
     </style>
 </head>
 <body>
@@ -49,22 +42,16 @@
         <label>New Password:</label>
         <input type="password" id="password" placeholder="Leave blank to keep current password">
         
-        <button onclick="saveProfile()">Save Changes</button>
+        <button id="saveBtn" onclick="saveProfile()">Save Changes</button>
         
         <div id="msg-box" class="hidden"></div>
     </div>
 
     <script>
         function saveProfile() {
-            // 1. Get values
             const phone = document.getElementById('phoneNumber').value.trim();
             const pass = document.getElementById('password').value;
-            const msgBox = document.getElementById('msg-box');
-
-            // Reset Message Box
-            msgBox.classList.add('hidden');
-            msgBox.className = 'hidden'; // Remove error/success classes
-
+            
             // --- VALIDATION LOGIC ---
 
             // Check 1: Is Phone Empty?
@@ -90,23 +77,18 @@
             showSuccess("Success: Profile details updated!");
         }
 
-        // Helper function to show Red Error Box
         function showError(message) {
             const msgBox = document.getElementById('msg-box');
             msgBox.innerText = message;
-            msgBox.className = 'error-msg'; // Apply red style
+            msgBox.className = 'error-msg'; 
             msgBox.classList.remove('hidden');
         }
 
-        // Helper function to show Green Success Box
         function showSuccess(message) {
             const msgBox = document.getElementById('msg-box');
             msgBox.innerText = message;
-            msgBox.className = 'success-msg'; // Apply green style
+            msgBox.className = 'success-msg'; 
             msgBox.classList.remove('hidden');
-            
-            // Auto-hide after 3 seconds
-            setTimeout(() => msgBox.classList.add('hidden'), 3000);
         }
     </script>
 </body>
