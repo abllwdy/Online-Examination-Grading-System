@@ -42,7 +42,7 @@ public class StudentUI {
                     System.out.println("Logging out...");
                     return;
                 default:
-                    System.out.println("❌ Invalid choice. Please try again.");
+                    System.out.println("  Invalid choice. Please try again.");
             }
         }
     }
@@ -50,18 +50,18 @@ public class StudentUI {
     // US03: View Upcoming Exams
     public static void viewUpcomingExams() {
         System.out.println("\n╔════════════════════════════════════════╗");
-        System.out.println("║       📅 Upcoming Exams                 ║");
+        System.out.println("║         Upcoming Exams                 ║");
         System.out.println("╚════════════════════════════════════════╝");
 
         if (currentStudentId == null) {
-            System.out.println("❌ Error: No student logged in.");
+            System.out.println("  Error: No student logged in.");
             return;
         }
 
         List<Exam> upcomingExams = ExamService.getUpcomingExamsForStudent(currentStudentId);
 
         if (upcomingExams.isEmpty()) {
-            System.out.println("\n📭 No upcoming exams found.");
+            System.out.println("\n No upcoming exams found.");
             System.out.println("   You're all caught up! 🎉");
             return;
         }
@@ -73,12 +73,12 @@ public class StudentUI {
             System.out.println("┌─────────────────────────────────────────");
             System.out.println("│ " + (i + 1) + ". " + exam.getTitle());
             System.out.println("├─────────────────────────────────────────");
-            System.out.println("│ 📅 Scheduled: " + exam.getScheduledDateTime().format(dateFormatter));
-            System.out.println("│ ⏱️  Duration:  " + exam.getDurationMinutes() + " minutes");
-            System.out.println("│ 🆔 Exam ID:   " + exam.getExamId());
+            System.out.println("│ Scheduled: " + exam.getScheduledDateTime().format(dateFormatter));
+            System.out.println("│ Duration:  " + exam.getDurationMinutes() + " minutes");
+            System.out.println("│ Exam ID:   " + exam.getExamId());
             
             if (exam.getInstructions() != null && !exam.getInstructions().isEmpty()) {
-                System.out.println("│ 📝 Instructions: " + exam.getInstructions());
+                System.out.println("│ Instructions: " + exam.getInstructions());
             }
             
             System.out.println("└─────────────────────────────────────────\n");
