@@ -26,4 +26,12 @@ bin/
 .vscode/
 
 ### Mac OS ###
+<<<<<<< HEAD
 .DS_Store
+
+### Test Output ###
+test/out/
+test/*.class
+=======
+.DS_Store
+>>>>>>> b26e9032114b8da7b014a1a0e70958f27ca08680
