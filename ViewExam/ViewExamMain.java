@@ -1,10 +1,10 @@
 import java.time.LocalDateTime;
 
-public class Main {
+public class ViewExamMain {
     public static void main(String[] args) {
-        System.out.println("╔════════════════════════════════════════╗");
-        System.out.println("║   OEGS - US03 Demo: View Upcoming Exams║");
-        System.out.println("╚════════════════════════════════════════╝\n");
+        System.out.println("══════════════════════════════════════════");
+        System.out.println("   OEGS - US03 Demo: View Upcoming Exams  ");
+        System.out.println("══════════════════════════════════════════\n");
 
         // Create sample exams - ALL with FUTURE dates
         Exam exam1 = ExamService.createExam(
