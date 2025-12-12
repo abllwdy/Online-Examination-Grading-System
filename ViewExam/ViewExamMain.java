@@ -17,7 +17,7 @@ public class ViewExamMain {
         Exam exam2 = ExamService.createExam(
             "Final Exam - Data Structures",
             "Closed book. Calculator allowed.",
-            LocalDateTime.now().plusDays(7),
+            LocalDateTime.now().plusDays(2),
             180
         );
 
